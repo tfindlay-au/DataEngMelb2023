@@ -1,0 +1,16 @@
+# Intellij project files
+*.iml
+.idea
+
+# Terraform files
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+
+# Kafka configuration files
+tf_kafka/setup_*.sh
+**/kafka-configuration.properties
+
+# Notebook files
+.ipynb_checkpoints/
