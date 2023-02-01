@@ -19,14 +19,14 @@ locals {
 // Define an environment to which a cluster belongs
 
 resource "confluent_environment" "demo" {
-  display_name = "default"
+  display_name = "new-env"
 }
 
 //------------------------------------------------
 // Define an cluster
 
 resource "confluent_kafka_cluster" "cluster" {
-  display_name = "Cluster"
+  display_name = "new-cluster"
   availability = "SINGLE_ZONE"
   cloud        = "AWS"
   region       = "ap-southeast-2"

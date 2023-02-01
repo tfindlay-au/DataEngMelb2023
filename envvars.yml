@@ -21,12 +21,12 @@ envvars:
     tags:
       - confluent
 
-  - name: KAFKA_API_KEY
+  - name: KAFKA_KEY
     desc: cluster key
     tags:
       - confluent
 
-  - name: KAFKA_API_SECRET
+  - name: KAFKA_SECRET
     desc: cluster secret
     tags:
       - confluent
