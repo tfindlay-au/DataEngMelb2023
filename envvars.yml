@@ -21,6 +21,26 @@ envvars:
     tags:
       - confluent
 
+  - name: KAFKA_API_KEY
+    desc: cluster key
+    tags:
+      - confluent
+
+  - name: KAFKA_API_SECRET
+    desc: cluster secret
+    tags:
+      - confluent
+
+  - name: SR_KEY
+    desc: cluster key
+    tags:
+      - confluent
+
+  - name: SR_SECRET
+    desc: cluster secret
+    tags:
+      - confluent
+
 tags:
   - name: confluent
     desc: needed to perform confluent provider actions

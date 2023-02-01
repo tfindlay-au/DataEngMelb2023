@@ -12,6 +12,7 @@ import logging
 import random
 import uuid
 import json
+import os
 
 from faker import Faker
 from confluent_kafka import Producer
@@ -19,15 +20,15 @@ from confluent_kafka.serialization import SerializationContext, MessageField
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.json_schema import JSONSerializer
 
-BROKER = "pkc-ldvj1.ap-southeast-2.aws.confluent.cloud:9092"
-SASL_USERNAME = "<KafkaAPIKey>"
-SASL_PASSWORD = "<KafkaAPISecret>"
+BROKER = "pkc-ldvj1.ap-southeast-2.aws.confluent.cloud"
+SASL_USERNAME = os.getenv("KAFKA_API_KEY")
+SASL_PASSWORD = os.getenv("KAFKA_API_SECRET")
 
-SR_BROKER = "<SchemaRegistryURL>"
-SR_SASL_USERNAME = "<SchemaRegistryKey>"
-SR_SASL_PASSWORD = "<SchemaRegistrySecret>"
+SR_BROKER = "https://psrc-znpo0.ap-southeast-2.aws.confluent.cloud"
+SR_SASL_USERNAME = os.getenv("SR_KEY")
+SR_SASL_PASSWORD = os.getenv("SR_SECRET")
 
-TOPIC = "input_topic"
+TOPIC = "input-topic"
 
 logging.basicConfig(level=logging.INFO)
 
