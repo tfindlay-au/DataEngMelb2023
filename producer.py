@@ -19,15 +19,15 @@ from confluent_kafka.serialization import SerializationContext, MessageField
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.json_schema import JSONSerializer
 
-BROKER = "<KafkaBrokerURL>"
-SASL_USERNAME = "<KafkaAPIKey>"
-SASL_PASSWORD = "<KafkaAPISecret>"
+BOOTSTRAP_SERVER = "KafkaBrokerURL"
+SASL_USERNAME = "KafkaAPIKey"
+SASL_PASSWORD = "KafkaAPISecret"
 
-SR_BROKER = "<SchemaRegistryURL>"
-SR_SASL_USERNAME = "<SchemaRegistryKey>"
-SR_SASL_PASSWORD = "<SchemaRegistrySecret>"
+SR_URL = "SchemaRegistryURL"
+SR_SASL_USERNAME = "SchemaRegistryKey"
+SR_SASL_PASSWORD = "SchemaRegistrySecret"
 
-TOPIC = "input_topic"
+TOPIC = "input-topic"
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,7 +60,7 @@ def main():
     logging.info("Starting...")
 
     config = {
-        "bootstrap.servers": BROKER,
+        "bootstrap.servers": BOOTSTRAP_SERVER,
         "security.protocol": "SASL_SSL",
         "sasl.mechanism": "PLAIN",
         "sasl.username": SASL_USERNAME,
@@ -71,7 +71,7 @@ def main():
 
     # Configure Schema Registry instance to use
     schema_registry_config = {
-        'url': SR_BROKER,
+        'url': SR_URL,
         'basic.auth.user.info': f"{SR_SASL_USERNAME}:{SR_SASL_PASSWORD}"
     }
     schema_registry_client = SchemaRegistryClient(schema_registry_config)
@@ -86,7 +86,7 @@ def main():
                                      to_dict=event_to_dict)
 
     # Generate records and publish to Kafka
-    for i in range(0, 10):
+    for i in range(0, 1):
         record = make_event()
         producer.produce(topic=TOPIC,
                          value=json_serializer(record, SerializationContext(TOPIC, MessageField.VALUE)),
