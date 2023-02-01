@@ -1,0 +1,18 @@
+DROP STREAM IF EXISTS input_topic_stream;
+CREATE STREAM input_topic_stream WITH (
+ kafka_topic = 'input-topic',
+ value_format = 'JSON_SR'
+);
+
+DROP STREAM IF EXISTS output_topic_stream;
+CREATE STREAM output_topic_stream WITH (
+    KAFKA_TOPIC = 'output-topic',
+    value_format = 'JSON_SR',
+    VALUE_SCHEMA_ID = 100002
+) AS
+SELECT
+    field1 as "field1",
+    field2 as "field2"
+FROM
+    input_topic_stream
+EMIT CHANGES;

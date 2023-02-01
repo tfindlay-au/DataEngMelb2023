@@ -8,20 +8,20 @@
   ],
   "properties": {
     "field1": {
-      "description": "",
+      "description": "This field represents a classification",
       "type": "string",
-      "minLength": 14,
-      "maxLength": 14,
-      "connect.index": "0"
+      "connect.index": 0
     },
     "field2": {
-      "description": "",
+      "description": "This field represents a customer email address",
       "type": "string",
-      "format": "email"
+      "format": "email",
+      "connect.index": 1
     },
     "field3": {
+      "description": "A UUID value to identify something",
       "type": "string",
-      "connect.index": "2"
+      "connect.index": 2
     }
   }
 }

@@ -39,6 +39,7 @@ resource "confluent_kafka_cluster" "cluster" {
 
 //------------------------------------------------
 // Define an schema registry
+
 data "confluent_schema_registry_region" "sr_region" {
   cloud   = "AWS"
   region  = "ap-southeast-2"
@@ -122,181 +123,34 @@ resource "confluent_kafka_topic" "topic" {
   ]
 }
 
-resource "confluent_schema" "topic_schema" {
-  for_each = toset(local.source_topic_names)
-  schema_registry_cluster {
-    id = confluent_schema_registry_cluster.essentials.id
-  }
-  credentials {
-    key    = confluent_api_key.producer_sr_api_key.id
-    secret = confluent_api_key.producer_sr_api_key.secret
-  }
-  rest_endpoint = confluent_schema_registry_cluster.essentials.rest_endpoint
-
-  subject_name = "${each.key}-value"
-  format = "JSON"
-  schema = file("${each.key}_schema.json")
-}
-
 //------------------------------------------------
-// Define service account with limited access to just the topic that is needed
+// Create KSQL cluster for querying
 
-resource "confluent_service_account" "producer_sa" {
-  display_name = "producer_sa"
-  description  = "Service account to manage producer access"
+resource "confluent_service_account" "ksql_sa" {
+  display_name = "ksql_sa"
+  description  = "Service account that the ksqlDB cluster uses to talk to the Kafka cluster"
 }
 
-resource "confluent_role_binding" "producer_cluster_admin" {
-  principal   = "User:${confluent_service_account.producer_sa.id}"
+resource "confluent_role_binding" "ksql_sa_cluster_role" {
+  principal   = "User:${confluent_service_account.ksql_sa.id}"
   role_name   = "CloudClusterAdmin"
   crn_pattern = confluent_kafka_cluster.cluster.rbac_crn
 }
 
-resource "confluent_kafka_acl" "describe_basic_cluster" {
+resource "confluent_ksql_cluster" "ksql_cluster" {
+  display_name = "ksql_demo"
+  csu          = 1
   kafka_cluster {
     id = confluent_kafka_cluster.cluster.id
   }
-  rest_endpoint = confluent_kafka_cluster.cluster.rest_endpoint
-  credentials {
-    key    = confluent_api_key.kafka_api_key.id
-    secret = confluent_api_key.kafka_api_key.secret
+  credential_identity {
+    id = confluent_service_account.ksql_sa.id
   }
-
-  resource_type = "CLUSTER"
-  resource_name = "kafka-cluster"
-  pattern_type  = "LITERAL"
-  principal     = "User:${confluent_service_account.producer_sa.id}"
-  host          = "*"
-  operation     = "DESCRIBE"
-  permission    = "ALLOW"
-}
-
-resource "confluent_kafka_acl" "describe_on_topic" {
-  for_each = toset(local.source_topic_names)
-
-  kafka_cluster {
-    id = confluent_kafka_cluster.cluster.id
+  environment {
+    id = confluent_environment.demo.id
   }
-  rest_endpoint = confluent_kafka_cluster.cluster.rest_endpoint
-  credentials {
-    key    = confluent_api_key.kafka_api_key.id
-    secret = confluent_api_key.kafka_api_key.secret
-  }
-
-  resource_type = "TOPIC"
-  resource_name = each.key
-  pattern_type  = "LITERAL"
-  principal     = "User:${confluent_service_account.producer_sa.id}"
-  host          = "*"
-  operation     = "DESCRIBE"
-  permission    = "ALLOW"
-}
-
-resource "confluent_kafka_acl" "write_on_topic" {
-  for_each = toset(local.source_topic_names)
-
-  kafka_cluster {
-    id = confluent_kafka_cluster.cluster.id
-  }
-  rest_endpoint = confluent_kafka_cluster.cluster.rest_endpoint
-  credentials {
-    key    = confluent_api_key.kafka_api_key.id
-    secret = confluent_api_key.kafka_api_key.secret
-  }
-
-  resource_type = "TOPIC"
-  resource_name = each.key
-  pattern_type  = "LITERAL"
-  principal     = "User:${confluent_service_account.producer_sa.id}"
-  host          = "*"
-  operation     = "WRITE"
-  permission    = "ALLOW"
-}
-
-resource "confluent_api_key" "producer_kafka_api_key" {
-  display_name = "producer-kafka-api-key"
-  description  = "Kafka API key that is owned by '${confluent_service_account.producer_sa.display_name}' service account"
-  owner {
-    id          = confluent_service_account.producer_sa.id
-    api_version = confluent_service_account.producer_sa.api_version
-    kind        = confluent_service_account.producer_sa.kind
-  }
-
-  managed_resource {
-    id          = confluent_kafka_cluster.cluster.id
-    api_version = confluent_kafka_cluster.cluster.api_version
-    kind        = confluent_kafka_cluster.cluster.kind
-
-    environment {
-      id = confluent_environment.demo.id
-    }
-  }
-
   depends_on = [
-    confluent_kafka_acl.describe_basic_cluster,
-    confluent_kafka_acl.write_on_topic
+    confluent_role_binding.ksql_sa_cluster_role,
+    confluent_schema_registry_cluster.essentials
   ]
 }
-
-resource "confluent_service_account" "sr_sa" {
-  display_name = "sr_sa"
-  description  = "Service account to manage schema registry access"
-}
-
-resource "confluent_role_binding" "environment_admin" {
-  principal   = "User:${confluent_service_account.sr_sa.id}"
-  role_name = "EnvironmentAdmin"
-  crn_pattern = confluent_environment.demo.resource_name
-  // role_name   = "CloudSchemaRegistryAdmin"
-  // crn_pattern = confluent_schema_registry_cluster.essentials.resource_name
-}
-
-resource "confluent_api_key" "producer_sr_api_key" {
-  display_name = "producer-sr-api-key"
-  description  = "Schema Registry API key that is owned by '${confluent_service_account.sr_sa.display_name}' service account"
-  owner {
-    id          = confluent_service_account.sr_sa.id
-    api_version = confluent_service_account.sr_sa.api_version
-    kind        = confluent_service_account.sr_sa.kind
-  }
-
-  managed_resource {
-    id          = confluent_schema_registry_cluster.essentials.id
-    api_version = confluent_schema_registry_cluster.essentials.api_version
-    kind        = confluent_schema_registry_cluster.essentials.kind
-
-    environment {
-      id = confluent_environment.demo.id
-    }
-  }
-}
-
-//------------------------------------------------
-// Display some outputs here to use the service accounts
-
-output "kafka_endpoint" {
-  value = confluent_kafka_cluster.cluster.bootstrap_endpoint
-}
-
-output "kafka_api_key" {
-  value = confluent_api_key.producer_kafka_api_key.id
-}
-
-output "kafka_api_secret" {
-  value = confluent_api_key.producer_kafka_api_key.secret
-  sensitive = true
-}
-
-output "sr_endpoint" {
-  value = confluent_schema_registry_cluster.essentials.rest_endpoint
-}
-
-output "sr_key" {
-  value = confluent_api_key.producer_sr_api_key.id
-}
-
-output "sr_secret" {
-  value = confluent_api_key.producer_sr_api_key.secret
-  sensitive = true
-}
-
