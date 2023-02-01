@@ -7,20 +7,24 @@
     "field2"
   ],
   "properties": {
-    "field1": {
+    "category": {
       "description": "This field represents a classification",
       "type": "string",
       "connect.index": 0
     },
-    "field2": {
+    "email": {
       "description": "This field represents a customer email address",
       "type": "string",
       "format": "email",
       "connect.index": 1
     },
-    "field3": {
+    "uuid": {
       "description": "A UUID value to identify something",
-      "type": "string",
+      "oneOf": [
+        {
+          "type": "string"
+        }
+      ],
       "connect.index": 2
     }
   }

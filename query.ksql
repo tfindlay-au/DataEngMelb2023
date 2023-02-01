@@ -11,8 +11,8 @@ CREATE STREAM output_topic_stream WITH (
     VALUE_SCHEMA_ID = 100002
 ) AS
 SELECT
-    field1 as "field1",
-    field2 as "field2"
+    field1 as "category",
+    field2 as "email"
 FROM
     input_topic_stream
 EMIT CHANGES;
