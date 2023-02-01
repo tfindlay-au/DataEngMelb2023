@@ -1,0 +1,4 @@
+Faker
+requests
+confluent-kafka
+jsonschema

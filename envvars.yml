@@ -1,0 +1,29 @@
+envvars:
+  - name: TERRAFORM_WORKSPACE
+    desc: Terraform Workspace that will be deployed to
+    default: nonprod
+    tags:
+      - confluent
+
+  - name: TERRAFORM_ROOT_MODULE
+    desc: Terraform Root Module (Directory) to deploy
+    default: cluster
+    tags:
+      - confluent
+
+  - name: CONFLUENT_CLOUD_API_KEY
+    desc: confluent key
+    tags:
+      - confluent
+
+  - name: CONFLUENT_CLOUD_API_SECRET
+    desc: confluent secret
+    tags:
+      - confluent
+
+tags:
+  - name: confluent
+    desc: needed to perform confluent provider actions
+
+
+

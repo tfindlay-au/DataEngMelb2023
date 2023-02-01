@@ -19,7 +19,7 @@ from confluent_kafka.serialization import SerializationContext, MessageField
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from confluent_kafka.schema_registry.json_schema import JSONSerializer
 
-BROKER = "<KafkaBrokerURL>"
+BROKER = "pkc-ldvj1.ap-southeast-2.aws.confluent.cloud:9092"
 SASL_USERNAME = "<KafkaAPIKey>"
 SASL_PASSWORD = "<KafkaAPISecret>"
 

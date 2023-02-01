@@ -19,7 +19,7 @@ locals {
 // Define an environment to which a cluster belongs
 
 resource "confluent_environment" "demo" {
-  display_name = "Demo"
+  display_name = "default"
 }
 
 //------------------------------------------------

@@ -1,0 +1,62 @@
+version: "3.3"
+services:
+  terraform-utils:
+    image: hashicorp/terraform:1.0.11
+    env_file: .env
+    environment:
+      - AWS_SDK_LOAD_CONFIG=1
+    entrypoint: ""
+    volumes:
+      - .:/work
+      - ~/.aws:/root/.aws
+    working_dir: /work
+
+  python:
+    image: faker:0.1
+    env_file: .env
+    entrypoint: ""
+    volumes:
+      - .:/work
+      - ~/.aws:/root/.aws
+    working_dir: /work
+
+  awscli:
+    image: amazon/aws-cli:latest
+    env_file: .env
+    environment:
+      - AWS_SDK_LOAD_CONFIG=1
+    entrypoint: ""
+    volumes:
+      - .:/work
+      - ~/.aws:/root/.aws
+    working_dir: /work
+
+  envvars:
+    image: flemay/envvars:0.0.8
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - .:/work
+
+  lambda:
+    image: public.ecr.aws/sam/build-python3.9
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - .:/work
+
+  graph:
+    image: gableroux/terraform-graphviz
+    env_file: .env
+    working_dir: /work
+    volumes:
+      - .:/work
+
+  soda:
+    image: soda:0.1
+    env_file: .env
+    volumes:
+      - .:/work
+      - ~/.dbt:/root/.dbt
+    working_dir: /work
+      
