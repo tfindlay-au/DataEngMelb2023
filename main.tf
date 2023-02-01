@@ -137,6 +137,12 @@ resource "confluent_role_binding" "ksql_sa_cluster_role" {
   crn_pattern = confluent_kafka_cluster.cluster.rbac_crn
 }
 
+resource "confluent_role_binding" "ksql_sa_sr_role" {
+  principal   = "User:${confluent_service_account.ksql_sa.id}"
+  role_name   = "ResourceOwner"
+  crn_pattern = format("%s/%s", confluent_schema_registry_cluster.essentials.resource_name, "subject=*")
+}
+
 resource "confluent_ksql_cluster" "ksql_cluster" {
   display_name = "ksql_demo"
   csu          = 1
